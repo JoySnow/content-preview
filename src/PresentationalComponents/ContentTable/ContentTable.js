@@ -14,16 +14,18 @@ import global_palette_green_500 from '@patternfly/react-tokens/dist/js/global_pa
 import global_palette_red_100 from '@patternfly/react-tokens/dist/js/global_palette_red_100';
 
 const ContentTable = ({ data, hits }) => {
+    // Add a dummy empty first column to escape the "first column sort + text filter" issue.
     const columns = [
+        { title: '' },  // dummy empty first column
         { title: 'Active', transforms: [sortable] },
         { title: 'Plugin', transforms: [sortable] },
         { title: 'Error Key', transforms: [sortable] },
         { title: 'Product Code', transforms: [sortable] },
         { title: 'Role', transforms: [sortable] },
         { title: 'Category', transforms: [sortable] },
-        { title: 'Hits' }
+        { title: 'Hits' },
     ];
-    const [sort, setSort] = useState({ index: 1, direction: 'asc' });
+    const [sort, setSort] = useState({ index: 2, direction: 'asc' });
     const [rows, setRows] = useState([]);
     const [searchText, setSearchText] = useState('');
     const debouncedSearchText = debounce(searchText, 800);
@@ -39,7 +41,7 @@ const ContentTable = ({ data, hits }) => {
             || item.error_key.toLowerCase().includes(debouncedSearchText.toLowerCase());
 
         return isValidSearchText ? [{
-            cells: [{
+            cells: ['', {  // dummy empty first column
                 title: <span key={key}> {item.status === 'active' ?
                     <CheckCircleIcon color={global_palette_green_500.value} /> : <TimesCircleIcon color={global_palette_red_100.value} />}</span>
             }, {
@@ -49,7 +51,7 @@ const ContentTable = ({ data, hits }) => {
     });
 
     const onSort = (_event, index, direction) => {
-        const sortAttr = { 0: 'status', 1: 'plugin', 2: 'error_key', 3: 'product_code', 4: 'role', 5: 'category' };
+        const sortAttr = { 1: 'status', 2: 'plugin', 3: 'error_key', 4: 'product_code', 5: 'role', 6: 'category' };
         const sortedData = data.asMutable().concat().sort(sortBy(sortAttr[index]));
         setSort({ index, direction });
         setRows(buildRows(direction === SortByDirection.asc ? sortedData : sortedData.reverse()));
